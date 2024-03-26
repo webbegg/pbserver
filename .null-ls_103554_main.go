@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
 	apps "webbegg.com/test/pbadmin/apps"
-	"webbegg.com/test/pbadmin/utils"
 )
 
 func main() {
@@ -47,9 +47,14 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		utils.RegisterApp("/central/", e.Router, apps.CentralDirFS)
-		utils.RegisterApp("/pos/", e.Router, apps.PosDirFS)
-
+		e.GET(
+			strings.TrimRight(trailedAdminPath, "/"),
+			func(c echo.Context) error {
+				return c.Redirect(http.StatusTemporaryRedirect, strings.TrimLeft(trailedAdminPath, "/"))
+			},
+		)
+		e.Router.GET("/central", apis.StaticDirectoryHandler(apps.CentralDirFS, false))
+		e.Router.GET("/linkpos", apis.StaticDirectoryHandler(apps.PosDirFS, false))
 		return nil
 	})
 

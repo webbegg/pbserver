@@ -20,5 +20,8 @@ vendor/
 # Dev
 tmp
 
+# Apps
+apps/**/dist/
+
 # Go workspace file
 go.work
